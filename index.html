@@ -18,9 +18,39 @@
     .tile {
         pointer-events: none;
         position: absolute;
-        width: 256px;
-        height: 256px;
-        background-color: #fff;border: 1px solid #000;
+        max-width: 256px;
+        max-height: 256px;
+        background-color: #fff;
+        -webkit-animation-duration: 1s;
+        animation-duration: 1s;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+        /*border: 1px solid #000;*/
+    }
+
+    @-webkit-keyframes fadeIn {
+        from {
+            opacity: 0.9;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0.9;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .fadeIn {
+        -webkit-animation-name: fadeIn;
+        animation-name: fadeIn;
     }
 
     .info {
@@ -31,9 +61,13 @@
 
 </style>
 <body>
+<!--<img src="" alt=""/>-->
 <script src="js/d3.min.js"></script>
 <script src="js/d3.geo.tile.min.js"></script>
 <script>
+    //默认比例下图片宽高
+ var picWidth=309;
+ var picHeight=322;
 
     var width = Math.max(960, window.innerWidth),
             height = Math.max(500, window.innerHeight),
@@ -45,8 +79,8 @@
     // var projection = d3.geo.mercator();
 
     var zoom = d3.behavior.zoom()
-            .scale(1 << 12)
-            .scaleExtent([1 << 9, 1 << 23])
+            .scale(1 << 9)
+            .scaleExtent([1 <<9, 1 << 16])
             .translate([width / 2, height / 2])
             .on("zoom", zoomed);
 
@@ -70,10 +104,9 @@
                 .scale(zoom.scale())
                 .translate(zoom.translate())
         ();
-        console.log(tiles)
-        // projection
-        //     .scale(zoom.scale() / 2 / Math.PI)
-        //     .translate(zoom.translate());
+        //宁波江丰图片数据转换
+        var index=tiles[0][2];
+        var point=Math.abs(index-8)
 
         var image = layer
                 .style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
@@ -83,16 +116,15 @@
         image.exit()
                 .remove();
 
-        image.enter().append("div")
+        image.enter().append("img")
                 .attr("class", "tile")
-            //.attr("src", function(d) { return "http://" + ["a", "b", "c", "d"][Math.random() * 4 | 0] + ".tiles.mapbox.com/v3/examples.map-i86nkdio/" + d[2] + "/" + d[0] + "/" + d[1] + ".png"; })
+//                .text(function(d) { return d[0]+'-'+d[1]+':'+d[2]})
+            .attr("src", function(d) {
+                    return "http://blob2.med.motic.com/183cd5b1-1bee-4cb3-8819-9e0cf7f70375/f_"+point+"_"+d[1]+"_"+d[0]+".jpg?sig=skfWIARrKz5wWqwJ%2BYE%2FIBBY%2B68dCsr6K4PcCS0OKtk%3D&se=2015-09-05T21%3A58%3A17Z&sv=2014-02-14&sp=r&sr=c";
+                })
                 .style("left", function(d) { return (d[0] << 8) + "px"; })
                 .style("top", function(d) { return (d[1] << 8) + "px"; });
     }
-
-    // function mousemoved() {
-    //   info.text(formatLocation(projection.invert(d3.mouse(this)), zoom.scale()));
-    // }
 
     function matrix3d(scale, translate) {
         var k = scale / 256, r = scale % 1 ? Number : Math.round;
