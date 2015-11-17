@@ -19,6 +19,7 @@
     }
 
     .layer {
+        display: inline-block;
         position: absolute;
        /*transition: transform .3s ease-out;*/
     }
@@ -36,6 +37,36 @@
         /*border: 1px solid #000;*/
     }
 
+    @-webkit-keyframes fadeIn {
+        from {
+            opacity: 0.9;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0.9;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .fadeIn {
+        -webkit-animation-name: fadeIn;
+        animation-name: fadeIn;
+    }
+
+    .info {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+    }
 #controller{
     position: fixed;
     top: 0;
@@ -43,60 +74,47 @@
     z-index: 9;
     left: 0;
     background-color: #fff;}
-    #getPic{
-        display: none;
-        }
 </style>
-<body>
+<body id="body">
 <div id="controller">
     <button onclick="jp()">截屏</button>
-    <canvas  id="getPic"></canvas>
 </div>
 <!--<img src="" alt=""/>-->
 <script src="js/d3.min.js"></script>
 <script src="js/d3.geo.tile.min.js"></script>
+<script src="js/html2canvas.min.js"></script>
 <script src="js/canvas2image.js"></script>
 <script src="js/zepto.min.js"></script>
 <script>
-    var picList={};
+    function jp(){
+        html2canvas(document.getElementById('body'), {
+            background:'#fff',
+            onrendered: function(canvas) {
+                //document.getElementById('controller').appendChild(canvas);
+                var imgdata=canvas.toDataURL("image/jpg");
+                $('<img src="'+imgdata+'"/>').appendTo('#controller');
+//                Canvas2Image.saveAsImage(canvas,window.innerWidth, window.innerHeight,'jpeg');
+//                var imgdata=Canvas2Image.convertToImage(canvas,window.innerWidth, window.innerHeight,'jpeg');
+//                $(imgdata).appendTo('#controller');
+
+
+                console.log(imgdata)
+            }
+        });
+    }
 
     //默认比例下图片宽高
-    var picWidth=256;
-    var picHeight=256;
+ var picWidth=256;
+ var picHeight=256;
+
     var width = window.innerWidth,
             height = window.innerHeight,
             prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 
-    function jp(){
-        var cvs=document.getElementById('getPic');
-        cvs.width = width;
-        cvs.height =height;
-        var ctx = cvs.getContext('2d');
-        ctx.fillStyle="#fff";
-        ctx.fillRect(0,0,width,height);
-        var i=0;
-        for (var k in picList)
-        {
-            var j=0;
-            for(var k2 in picList[k]){
-                var x=picWidth*j;
-                var y=picHeight*i;
-                ctx.drawImage(document.getElementById(picList[k][k2]),x,y);
-                j++;
-            }
-            i++;
-        }
-         var imgdata=Canvas2Image.convertToImage(cvs,width,height,'jpeg');
-        console.log(imgdata.src)
-        $(imgdata).appendTo('#controller');
-
-    }
-
-
-
     var tile = d3.geo.tile()
             .size([width, height]);
 
+    // var projection = d3.geo.mercator();
 
     var zoom = d3.behavior.zoom()
             .scale(1 << 9)
@@ -109,10 +127,13 @@
             .style("width", width + "px")
             .style("height", height + "px")
             .call(zoom);
+    // .on("mousemove", mousemoved);
 
-    var layer = map.append("div")
+    var layer = map.append("svg")
             .attr("class", "layer").attr("id", "layer");
 
+    // var info = map.append("div")
+    //     .attr("class", "info");
 
     zoomed();
 
@@ -122,42 +143,32 @@
                 .translate(zoom.translate())();
         //宁波江丰图片数据转换
         var index=tiles[0][2];
-        var point=Math.abs(index-8);//倍率取反
-
-        //获取当前图片地址//用于截图
-        picList={};
-        var len=tiles.length;
-        for(var i=0;i<len;i++){
-            var d=tiles[i];
-            if(!picList[d[1]])picList[d[1]]=[];
-            picList[d[1]].push(point+"_"+d[1]+"_"+d[0]);
-        }
-
-
+        var point=Math.abs(index-8);
 
         var image = layer
                 .style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
                 .selectAll("#map .box-img")
                 .data(tiles, function(d) { return d;});
 
-
         image.exit().remove();
-        image.enter().append("img")
+
+        image.enter().append("image")
                 .attr("class", "box-img")
-                .attr("src", function(d) {
+                .attr("xlink:href", function(d) {
                     return "./pic/"+point+"_"+d[1]+"_"+d[0]+".jpg";
                 })
-                .style("left", function(d) { return (d[0] << 8) + "px"; })
-                .style("top", function(d) { return (d[1] << 8) + "px"; });
-        image.attr("id", function(d) {
-            return point+"_"+d[1]+"_"+d[0];
-        });
+                .attr("x", function(d) { return (d[0] << 8) + "px"; })
+                .attr("y", function(d) { return (d[1] << 8) + "px"; })
+                .attr({ width:256, height:256 });
+
 
     }
 
     function matrix3d(scale, translate) {
         var k = scale / 256, r = scale % 1 ? Number : Math.round;
-        return "matrix3d(" + [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0, r(translate[0] * scale), r(translate[1] * scale), 0, 1 ] + ")";
+        return 'translate(' + r(translate[0] * scale)+'px,'+r(translate[1] * scale) + 'px) scale('+k+','+k+')';
+
+        // return "matrix3d(" + [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0, r(translate[0] * scale), r(translate[1] * scale), 0, 1 ] + ")";
     }
 
     function prefixMatch(p) {
@@ -165,6 +176,11 @@
         while (++i < n) if (p[i] + "Transform" in s) return "-" + p[i].toLowerCase() + "-";
         return "";
     }
-
+//
+//    function formatLocation(p, k) {
+//        var format = d3.format("." + Math.floor(Math.log(k) / 2 - 2) + "f");
+//        return (p[1] < 0 ? format(-p[1]) + "°S" : format(p[1]) + "°N") + " "
+//                + (p[0] < 0 ? format(-p[0]) + "°W" : format(p[0]) + "°E");
+//    }
 
 </script>

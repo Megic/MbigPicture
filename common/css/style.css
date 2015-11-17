@@ -1,0 +1,203 @@
+
+/***配合body的VM***/
+html,body{
+    background-color: #fff;
+    font-family: '微软雅黑';
+    color: #555;}
+.ui-header-stable{
+    color: #fff;
+    background-color: #339de1; height: 50px;
+    line-height: 50px;}
+.ui-header-stable .ui-icon, .ui-header-stable [class^=ui-icon-]{
+    color: #fff;
+   }
+
+.ui-btn-com{
+    border: none;
+    color: #fff;
+    background:#339de1;}
+.ui-header .ui-btn{
+    right: 5px;}
+.ui-btn-com:active{
+    background: #2781bb!important;
+    color: #fff !important;}
+.has-header{
+    padding-top: 50px;}
+.has-menu{
+    padding-bottom: 62px;}
+
+.ui-header-stable .ui-btn:before{
+    border: none;}
+.ui-form-item{
+    padding-top: 10px;
+    padding-bottom: 10px;}
+
+/*底部菜单*/
+.hj-userName{
+    text-align: center;
+}
+.hj-footer{
+    height: 60px;
+    color: #c1cacf;
+    line-height: 1.2;
+    background: #FFFFFF;
+    border-top: 1px solid #c1cacf;
+}
+.hj-footer li{
+    height: 60px;
+    padding: 10px 0;
+    background-repeat: no-repeat;
+    background-size: 28px;
+    background-position: center 7px;
+}
+.hj-footer li a{
+    display: block;
+    width: 100%;
+    font-size: 14px;
+    height: 100%;
+    color: #aaa;
+    padding-top: 30px;}
+.hj-footer li.on a{
+    color: #666;}
+
+.menu-yy {
+    background-image: url(../img/yy_2.png);
+}
+.menu-yy.on{
+    background-image: url(../img/yy.png);
+}
+
+
+.menu-jz {
+    background-image: url(../img/jz_2.png);
+}
+.menu-jz.on{
+    background-image: url(../img/jz.png);
+}
+
+.menu-me {
+    background-image: url(../img/me_2.png);
+}
+.menu-me.on{
+    background-image: url(../img/me.png);
+}
+ /*底部选择层*/
+.ui-actionsheet-cnt{
+    padding: 0;}
+.ui-actionsheet button:nth-last-child(2),.ui-actionsheet h4{border-radius: 0}
+.ui-actionsheet button, .ui-actionsheet h4{
+    background: #fff;
+    color: #54aae5;
+    font-size: 16px;}
+.ui-actionsheet button:last-child{border-radius: 0;
+    border-top: 1px #e0e0e0 solid;
+    margin: 0;}
+.ui-actionsheet button{
+    height: 50px;
+    line-height: 50px;}
+.ui-actionsheet button.close{
+    color: #999;}
+
+/*弹出选择层*/
+.ui-btn-dialog{
+    display: block;
+    line-height: 45px;
+    height: 45px;
+    text-align: center;
+    border-top: 1px #e0e0e0 solid;
+    color: #54aae5;
+    width: 100%;
+}
+.ui-btn-dialog:active{
+    opacity: 0.6}
+/*Loading*/
+#loading{
+    -webkit-transition: all .2s linear;transition: all .2s linear;
+    opacity: 1;
+    top: 0;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    z-index: 110;
+    display:-webkit-box;
+    -webkit-box-align:center;
+    text-align: center;
+}
+#loading.hide{opacity: 0;}
+#loading-box{
+    width: 200px;
+    margin: 0 auto;
+    font-size: 12px;
+    color: #aaa;}
+#loading img{
+    width: 70px;}
+
+.mj-datelist-title{
+    line-height: 40px;
+    height: 40px;
+    font-size: 12px;
+    color: #666;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    text-align: center;}
+.f-fr{
+    float: right;}
+.f-fl{
+    float: left;}
+.ui-actionsheet button.mj-datelist-span{
+    display: inline-block;
+    line-height: 40px;
+    height: 40px;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: auto;}
+.mj-datelist-body{
+    display: table;
+    background-color: #fff;
+    position: relative;
+    width: 100%;}
+.mj-datelist-body .swiper-slide{
+    height: 30px;-webkit-transition: all .3s linear;transition: all .3s linear;
+    line-height: 30px;
+    font-size: 14px;
+    font-weight: normal;}
+.mj-datelist .ui-actionsheet-cnt{
+    height: 191px;
+    overflow: hidden;}
+.mj-datelist-body .swiper-container{
+    height: 150px;
+    overflow: hidden;}
+.mj-datelist-sl,.mj-datelist-sr{
+    display: table-cell;
+    width: 50%;
+    overflow: hidden;}
+.mj-datelist-body .swiper-slide-active{
+    font-weight: bold;
+    color: #0099ff;
+    font-size: 20px;}
+.mj-datelist-cur{
+    position: absolute;
+    height: 30px;
+    left: 0;
+    top: 60px;
+    width: 100%;
+    border: 1px solid #eee;}
+/*表单扩展*/
+.ui-form-item-right{
+    padding-left: 95px;}
+.ui-form-item-radio{
+    color: #999;
+    display: inline-block;
+    padding-left: 23px;
+    padding-right: 10px;}
+.ui-form-item-radio.checked{
+    background-image: url(../img/hj-gou.gif);
+    background-repeat: no-repeat;
+    background-size: 17px;
+    background-position: 0 16px;
+    color: #339de1;
+}
+.show-enter{
+    display: block;}

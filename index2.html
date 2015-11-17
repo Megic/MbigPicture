@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-size: 0;
+    }
+
+    #map {
+        position: relative;
+        overflow: hidden;
+        height: 400px;
+        z-index: 1;
+        top: 0;
+        left: 0;
+    }
+
+    .layer {
+        position: absolute;
+       /*transition: transform .3s ease-out;*/
+    }
+
+    .box-img {
+        pointer-events: none;
+        position: absolute;
+        max-width: 256px;
+        max-height: 256px;
+        background-color: #fff;
+        -webkit-animation-duration: 1s;
+        animation-duration: 1s;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+        /*border: 1px solid #000;*/
+    }
+
+    @-webkit-keyframes fadeIn {
+        from {
+            opacity: 0.9;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0.9;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .fadeIn {
+        -webkit-animation-name: fadeIn;
+        animation-name: fadeIn;
+    }
+
+    .info {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+    }
+#controller{
+    position: fixed;
+    top: 0;
+    height: 30px;
+    z-index: 9;
+    left: 0;
+    background-color: #fff;}
+</style>
+<body>
+<div id="controller">
+    <button onclick="jp()">截屏</button>
+</div>
+<!--<img src="" alt=""/>-->
+<script src="js/d3.min.js"></script>
+<script src="js/d3.geo.tile.min.js"></script>
+<script src="js/html2canvas.min.js"></script>
+<script src="js/canvas2image.js"></script>
+<script src="js/zepto.min.js"></script>
+<script>
+    function jp(){
+        html2canvas(document.getElementById('map'), {
+            onrendered: function(canvas) {
+                //document.getElementById('controller').appendChild(canvas);
+//                var imgdata=canvas.toDataURL("image/jpeg");
+//                Canvas2Image.saveAsImage(canvas,window.innerWidth, window.innerHeight,'jpeg');
+                var imgdata=Canvas2Image.convertToImage(canvas,window.innerWidth, window.innerHeight,'jpeg');
+               // $('<img src="'+imgdata+'"/>').appendTo('#controller');
+                $(imgdata).appendTo('#controller');
+                console.log(imgdata)
+            }
+        });
+    }
+
+    var width = window.innerWidth,
+            height =window.innerHeight,
+            projection = d3.geo.mercator().scale(1024).translate([512, 256]),
+            path = d3.geo.path().projection(projection);
+
+    var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .call(d3.behavior.zoom()
+                    .translate(projection.translate())
+                    .scale(projection.scale())
+                    .on("zoom", redraw));
+
+    var axes = svg.append("g").attr("id", "axes"),
+            xAxis = axes.append("line").attr("y2", height),
+            yAxis = axes.append("line").attr("x2", width);
+
+    var tileg = svg.append('g').attr('id', 'tiles');
+
+    function tileUrl(d) {
+        console.log(d)
+        return "./pic/"+d[0]+"_"+d[2]+"_"+d[1]+".jpg";
+    }
+
+    function redraw() {
+        if (d3.event) {
+            projection
+                    .translate(d3.event.translate)
+                    .scale(d3.event.scale);
+        }
+
+        var t = projection.translate(),
+                s = projection.scale(),
+                z = Math.max(Math.log(s) / Math.log(2) - 8, 0),
+                rz = Math.floor(z),
+                ts = 256 * Math.pow(2, z - rz);
+
+        // This is the 0, 0 px of the projection
+        var tile_origin = [s / 2 - t[0], s / 2 - t[1]];
+
+        var tiles = [];
+
+        var cols = d3.range(Math.max(0, Math.floor((tile_origin[0] - width) / ts)),
+                Math.max(0, Math.ceil((tile_origin[0] + width) / ts)));
+
+        var rows = d3.range(Math.max(0, Math.floor((tile_origin[1] - height) / ts)),
+                Math.max(0, Math.ceil((tile_origin[1] + height) / ts)));
+
+        cols.forEach(function(x) {
+            rows.forEach(function(y) {
+                tiles.push([Math.floor(z), x, y]);
+            });
+        });
+
+        tiles = tileg.selectAll('image.tile')
+                .data(tiles, function(d) { return d.join(',') });
+
+        tiles.exit()
+                .transition()
+                .duration(250)
+                .style("opacity", 0.0)
+                .remove();
+
+        tiles.enter().append('image')
+                .attr('class', 'tile')
+                .attr('xlink:href', tileUrl);
+
+        tiles.attr({ width: ts, height: ts })
+                .attr('transform', function(d) {
+                    return 'translate(' + [(d[1] * ts) - tile_origin[0], (d[2] * ts) - tile_origin[1]] + ')';
+                });
+
+        xAxis.attr("x1", t[0]).attr("x2", t[0]);
+        yAxis.attr("y1", t[1]).attr("y2", t[1]);
+    }
+
+    redraw();
+
+</script>
