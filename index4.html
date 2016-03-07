@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    html{-webkit-text-size-adjust:none;}
+    *{
+        padding: 0;
+        margin: 0;}
+    body {
+        margin: 0;
+        padding: 0;
+        font-size: 0;
+    }
+
+    #map {
+        position: relative;
+        overflow: hidden;
+        height: 400px;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        font-size: 0;
+    }
+
+    .layer {
+        position: absolute;
+        transition: transform,translate .2s ease-out;
+
+    }
+
+    .box-img {
+        pointer-events: none;
+        position: absolute;
+        max-width: 256px;
+        max-height: 256px;
+        background-color: #fff;
+        z-index: 0;
+        display: inline-block;
+        border: 0;
+        /*-webkit-animation-duration: 1s;*/
+        /*animation-duration: 1s;*/
+        /*-webkit-animation-fill-mode: both;*/
+        /*animation-fill-mode: both;*/
+    }
+
+    #controller{
+        position: fixed;
+        top: 0;
+        height: 30px;
+        z-index: 9;
+        left: 0;
+        background-color: #fff;}
+    #getPic{
+        display: none;
+    }
+</style>
+<body>
+<div id="controller">
+    <button id="reset">重置</button>
+    <button onclick="jp()">截屏</button>
+    <canvas  id="getPic"></canvas>
+</div>
+<!--<img src="" alt=""/>-->
+<script src="js/d3.min.js"></script>
+<script src="js/d3.geo.tile.min.js"></script>
+<script src="js/canvas2image.js"></script>
+<script src="js/zepto.min.js"></script>
+<script>
+
+
+
+    //截屏相关
+    var picList={};
+
+    function jp(){
+        var cvs=document.getElementById('getPic');
+        cvs.width = width;
+        cvs.height =height;
+        var ctx = cvs.getContext('2d');
+        ctx.fillStyle="#fff";
+        ctx.fillRect(0,0,width,height);
+        var i=0;
+        for (var k in picList)
+        {
+            var j=0;
+            for(var k2 in picList[k]){
+                var x=256*j;
+                var y=256*i;
+                ctx.drawImage(document.getElementById(picList[k][k2]),x,y);
+                j++;
+            }
+            i++;
+        }
+        var imgdata=Canvas2Image.convertToImage(cvs,width,height,'jpeg');
+        $(imgdata).appendTo('#controller');
+
+    }
+
+
+
+
+    d3.select('#reset').on('click',function(){
+        go(minScale,width/2,height/2)
+    });
+
+
+    var curX,curY,curS,
+        picWidth=309,picHeight=322, //默认比例下图片宽高用于消除溢出项目
+        width = window.innerWidth,
+        height = window.innerHeight,
+        minScale=2 << 8,//最x小缩放比例 2<<7 =256
+        maxScale=2 << 15;//最大缩放比例
+
+
+    /**
+     * 重新设置图片显示位置
+     * @param scale 缩放比例
+     * @param nx  X轴位置
+     * @param ny  Y轴位置
+     */
+    function go(scale,nx,ny){
+        d3.transition().duration(250).tween("zoom", function() {
+            var si = d3.interpolate(curS, scale);
+            var xi = d3.interpolate(curX, nx);
+            var yi = d3.interpolate(curY, ny);
+            return function(t){
+                layer.call(zoom.translate([xi(t),yi(t)]).scale(si(t)).event);
+            }
+        });
+    }
+
+    var tile = d3.geo.tile().size([width, height]);//初始化显示内容数据
+    var zoom = d3.behavior.zoom()
+            .scale(minScale)
+            .scaleExtent([minScale,maxScale ])
+            .translate([width/2,height/2])
+            .on("zoom", zoomed).on("zoomend",zoomend);
+
+//    创建主容器
+    var map = d3.select("body").append("div").attr("id", "map")
+            .style("width", width + "px")
+            .style("height", height + "px")
+            .call(zoom);
+    console.log(map)
+//创建移动容器
+    var layer = map.append("canvas").attr("class", "layer").attr("id", "layer").style("width", width + "px")
+            .style("height", height + "px").node().getContext("2d");
+
+
+    zoomed();//执行第一次事件
+    function zoomed() {
+
+        var tiles = tile.scale(zoom.scale()).translate(zoom.translate())();//计算视野中的图块
+        draw(tiles);
+//        if(isScale){//放大缩小延迟
+//            var timmer;clearTimeout(timmer);
+//            timmer=setTimeout(function(){draw(tiles);},500);
+//        }else{
+//            draw(tiles);
+//        }
+//
+
+    }
+function zoomend(){//改变事件结束
+    var isScale=!(curS==zoom.scale());
+    console.log(Math.ceil(zoom.scale()/512))
+
+    //记录当前位置数据
+    curX=zoom.translate()[0];
+    curY=zoom.translate()[1];
+    curS=zoom.scale();
+    if(isScale) {//放大缩小
+        console.log('xx')
+        var nscale=Math.ceil(zoom.scale()/512)*512;
+        console.log(nscale-curS)
+     //  if((nscale-curS)<512)go(Math.ceil(zoom.scale()/512)*512,curX,curY)
+    }
+}
+
+
+    function draw(tiles){
+        layer.save();
+        layer.clearRect(0,0,layer.width,layer.height);
+//        console.log(tiles)
+        //宁波江丰图片数据转换
+        var index=tiles[0][2];
+        var point=Math.abs(index-8);//倍率取反
+
+        //获取当前图片地址//用于截图
+        picList={};
+        var len=tiles.length;
+        for(var i=0;i<len;i++){
+            var d=tiles[i];
+            if(!picList[d[1]])picList[d[1]]=[];
+           // picList[d[1]].push(point+"_"+d[1]+"_"+d[0]);
+            picList[d[1]].push("./pic/"+point+"_"+d[1]+"_"+d[0]+".jpg");
+        }
+        var opt=translate(tiles.scale,tiles.translate);
+        layer.translate(opt[0],opt[1]);
+        layer.scale(tiles.scale/ 256,tiles.scale/ 256);
+
+        var i=0;
+        for (var k in picList)
+        {
+            var j=0;
+            for(var k2 in picList[k]){
+                var x=256*j;
+                var y=256*i;
+                var img=new Image();
+                img.src=picList[k][k2];
+                //layer.drawImage(img,x,y);
+                layer.drawImage(img,0,0,img.width,img.height,x,y,img.width,img.height);
+                j++;
+            }
+            i++;
+        }
+        layer.restore();
+//        var image = layer.style("transform",transform(tiles.scale, tiles.translate))
+//                .selectAll("#map .box-img")
+//                .data(tiles, function(d) { return d;});
+
+//        image.exit().remove();//移除消失项
+//
+//        image.enter().append("img").attr("class", "box-img")
+//                .style("left", function(d) { return (d[0] << 8) + "px"; })
+//                .style("top", function(d) { return (d[1] << 8) + "px"; })
+//                .attr("src", function(d) {//设置对应图片地址
+//                    return "./pic/"+point+"_"+d[1]+"_"+d[0]+".jpg";
+//                }).attr("id", function(d) {return point+"_"+d[1]+"_"+d[0];});//设置ID
+    }
+
+    function translate(scale,translate) {
+        var k = scale / 256, r = scale % 1 ? Number : Math.round;
+        return [r(translate[0] * scale),r(translate[1] * scale)];
+    }
+
+    function transform(scale, translate) {
+        var k = scale / 256, r = scale % 1 ? Number : Math.round;
+        return 'translate(' + r(translate[0] * scale)+'px,'+r(translate[1] * scale) + 'px) scale('+k+','+k+')';
+        //  return "matrix3d(" + [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0, r(translate[0] * scale), r(translate[1] * scale), 0, 1 ] + ")";
+    }
+
+
+
+</script>

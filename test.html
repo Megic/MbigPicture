@@ -105,8 +105,8 @@
 
 
     var zoom = d3.behavior.zoom()
-            .scale(1 << 9)
-            .scaleExtent([1 <<9, 1 << 16])
+            .scale(1 << 8)
+            .scaleExtent([1 <<8, 1 << 16])
             .translate([width / 2, height / 2])
             .on("zoom", zoomed);
 
@@ -126,45 +126,22 @@
         var tiles = tile
                 .scale(zoom.scale())
                 .translate(zoom.translate())();
-        //宁波江丰图片数据转换
-        var index=tiles[0][2];
-        var point=Math.abs(index-8);//倍率取反
 
-        //获取当前图片地址//用于截图
-        picList={};
-        var len=tiles.length;
-        for(var i=0;i<len;i++){
-            var d=tiles[i];
-            if(!picList[d[1]])picList[d[1]]=[];
-            picList[d[1]].push(point+"_"+d[1]+"_"+d[0]);
-        }
+        console.log(zoom.scale(),tiles)
+
+//        var image = layer
+//                .style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
+//                .selectAll("#map .box-img")
+//                .data(tiles, function(d) { return d;});
 
 
-
-        var image = layer
-                .style( "transform", matrix3d(tiles.scale, tiles.translate))
-                .selectAll("#map .box-img")
-                .data(tiles, function(d) { return d;});
-
-
-        image.exit().remove();
-        image.enter().append("img")
-                .attr("class", "box-img")
-                 .style("background-image", function(d) {//设置对应图片地址
-                    return "url("+picHost+point+"_"+d[1]+"_"+d[0]+".jpg)";
-                })
-                .style("left", function(d) { return (d[0] << 8) + "px"; })
-                .style("top", function(d) { return (d[1] << 8) + "px"; });
-        image.attr("id", function(d) {
-            return point+"_"+d[1]+"_"+d[0];
-        });
 
     }
 
     function matrix3d(scale, translate) {
         var k = scale / 256, r = scale % 1 ? Number : Math.round;
-        //return 'translate(' + r(translate[0] * scale)+'px,'+r(translate[1] * scale) + 'px) scale('+k+','+k+')';
-      return "matrix3d(" + [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0, r(translate[0] * scale), r(translate[1] * scale), 0, 1 ] + ")";
+        return 'translate(' + r(translate[0] * scale)+'px,'+r(translate[1] * scale) + 'px) scale('+k+','+k+')';
+      //  return "matrix3d(" + [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0, r(translate[0] * scale), r(translate[1] * scale), 0, 1 ] + ")";
     }
 
     function prefixMatch(p) {

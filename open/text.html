@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+
+        /*
+         from openseadragon demos
+         */
+        .openseadragon
+        {
+            width:      100%;
+            height:     100%;
+            top: 0;
+            left: 0;
+            background-color: black;
+            position: absolute;
+        }
+
+    </style>
+    <script src="js/openseadragon.min.js"></script>
+</head>
+
+<body>
+<div id="example-custom-tilesource"
+     class="openseadragon" >
+</div>
+<script>
+    OpenSeadragon({
+        id:                 "example-custom-tilesource",
+        prefixUrl:          "./js/images/",
+
+//        immediateRender: true,
+        showNavigationControl: false,
+
+
+        zoomPerScroll:2,
+        springStiffness:10,
+        showNavigator:  true,
+        navigatorPosition:   "TOP_RIGHT",
+//        navigatorTop:      "20px",
+//        navigatorLeft:     "20px",
+        navigatorHeight:   "120px",
+        navigatorWidth:    "120px",
+//        navigatorSizeRatio: 0.25,
+//        wrapHorizontal:     true,
+        tileSources:   {
+            height: 256*161+92,
+            width:  256*154+172,
+            tileSize: 256,
+            minLevel: 0,
+            maxLevel:7,
+            getTileUrl: function( level, x, y ){
+                return "http://www.erkezaixian.com/d/file/bpic/pic/"+Math.abs(level-7)+"_"+y+"_"+x+".jpg";
+            }
+        }
+    });
+</script>
+</body>
+</html>

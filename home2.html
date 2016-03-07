@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>掌上病理</title>
+    <link rel="stylesheet" href="common/css/frozen.css"/>
+    <link rel="stylesheet" href="common/css/style.css"/>
+    <script src="common/js/lib/zeptojs/zepto.min.js"></script>
+    <script src="common/js/frozen.js"></script>
+    <script src="common/js/avalon.mobile.min.js"></script>
+
+    <style>
+        html,body{
+            background-color: #f1f1f1;}
+.f-pb{
+    padding-bottom: 50px;}
+        #bg-img{
+            position: absolute;
+            top: 0; overflow: hidden;
+            left: 0;
+            z-index: 0;
+            width: 100%;
+            height: 100%;}
+        #bg-img div{
+            position: absolute;
+            display: block;
+        }
+        #bg-imgbox,#bg-img img{
+            position: absolute;
+            z-index:0;
+        }
+        #bg-img img{
+            top: 0;
+            left: 0;}
+        #map {
+            position: absolute;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            font-size: 0;
+        }
+
+        .layer {
+            position: absolute;
+            /*width: 100%;*/
+            /*height: 100%;*/
+            /*opacity: 0.5;*/
+            transition: transform,translate .2s ease-out;
+
+        }
+
+        .box-img {
+            pointer-events: none;
+            position: absolute;
+            width: 256px;
+            height: 256px;
+            z-index: 0;
+            display: inline-block;
+            border: 0;
+            opacity: 0;
+            background-repeat: no-repeat;
+            -webkit-animation-duration: 1s;
+            animation-duration: 1s;
+            -webkit-animation-fill-mode: both;
+            animation-fill-mode: both;
+        }
+        #getPic{
+            display: none;
+        }
+
+        .ui-header{
+            position: relative;}
+        .ui-header .ui-icon-search{
+            position: absolute;
+            top: 2px;
+            right: 5px;
+            font-size: 36px;}
+        .ui-header h1{text-align: left}
+        .ui-tab-nav{
+            position: fixed;
+            z-index: 9;
+            bottom: 0;
+            left: 0;}
+        .ui-tab-content li.box{min-height: 200px;;
+            position: relative;
+            display: none;}
+        .ui-tab-content li.current{
+            display: block;}
+        #controller{
+            background-color: #fff;
+            height: auto;}
+        .imglist{
+            height: 50px;
+            display: none;
+            border: 5px solid #fff;
+            overflow: hidden;}
+        .imglist img{
+            width: 50px;
+            margin-right: 2px;}
+        .f-cw{
+            background-color: #fff;
+            margin-bottom: 10px;}
+        .ui-table td{
+            padding: 4px;}
+        .head{
+            background-color: #f8f8f8;}
+        .tbox{
+            background-color: #fff;
+            padding: 10px;
+            color: #444;
+            margin-bottom: 5px;}
+        .tbox p{
+            font-size: 12px;
+            padding: 5px;
+            color: #666;}
+        .f-mt5{
+            margin-top: 5px;}
+        .xxx{
+            font-size: 12px;}
+    </style>
+</head>
+<body>
+<!--loading.begin-->
+<div id="loading"><div id="loading-box"><b>掌上病理</b><p>加载中...</p></div></div>
+<!--loading.end-->
+
+<div class="ui-tab">
+    <ul class="ui-tab-content">
+        <li class="current box f-pb">
+            <header class="ui-header ui-header-stable"><h1>掌上病理</h1><i class="ui-icon-search"></i>
+            </header>
+            <ul class="ui-list ui-list-link">
+                <li class="xx">
+                    <div class="ui-list-icon">
+                        <span style="background-image:url(common/img/p1.png)"></span>
+                    </div>
+                    <div class="ui-list-info ui-border-t">
+                        <h4 class="ui-nowrap">张伟    男   49岁 </h4>
+                        <div class="ui-badge-muted">普外科</div> <div class="ui-badge">结节性甲状腺肿</div>
+                        <p class="ui-nowrap">(左侧)甲状腺组织V=4*2.5*2CM剖开见直径0.5CM结节另见直径0.7CM囊腔内含胶冻样物(右侧)甲状腺组织V=5*3*2.5CM剖开见结节多个大者直径1.5CM病理诊断:(双侧)结节性甲状腺肿伴腺瘤样增生及纤维化囊性变</p>
+                    </div>
+                </li>
+                <li class="xx">
+                    <div class="ui-list-icon">
+                        <span style="background-image:url(common/img/p2.png)"></span>
+                    </div>
+                    <div class="ui-list-info ui-border-t">
+                        <h4 class="ui-nowrap">李梅  女  56岁</h4>
+                        <div class="ui-badge-muted">妇科</div> <div class="ui-badge">乳腺癌</div>
+                        <p class="ui-nowrap">送检灰黄褐色不规则组织1块，大小约5*3.5*2.5cm，切面灰白灰黄色，质稍韧，取3盒送检灰黄褐色不规则组织1块，大小约5*3.5*2.5cm，切面灰白灰黄色，质稍韧，取3盒</p>
+                    </div>
+                </li>
+                <li class="xx">
+                    <div class="ui-list-icon">
+                        <span style="background-image:url(common/img/p3.png)"></span>
+                    </div>
+                    <div class="ui-list-info ui-border-t">
+                        <h4 class="ui-nowrap">王军建 男  63岁</h4>
+                        <div class="ui-badge-muted">消化科</div> <div class="ui-badge">胃体粘膜</div>
+                        <p class="ui-nowrap">（胃窦）灰白组织一粒，直径0.2cm，全取。过程...</p>
+                    </div>
+                </li>
+                <li class="xx">
+                    <div class="ui-list-icon">
+                        <span style="background-image:url(common/img/p4.png)"></span>
+                    </div>
+                    <div class="ui-list-info ui-border-t">
+                        <h4 class="ui-nowrap">李秀英 女 55岁 </h4>
+                        <div class="ui-badge-muted">妇科</div> <div class="ui-badge">卵巢囊肿</div>
+                        <p class="ui-nowrap">灰白色破碎组织1堆，大小0.5*0.5*0.5cm骨头》</p>
+                    </div>
+                </li>
+                <li class="xx">
+                    <div class="ui-list-icon">
+                        <span style="background-image:url(common/img/p5.png)"></span>
+                    </div>
+                    <div class="ui-list-info ui-border-t">
+                        <h4 class="ui-nowrap">窦姜山 男 52岁 </h4>
+                        <div class="ui-badge-muted">呼吸科</div> <div class="ui-badge">肺癌</div>
+                        <p class="ui-nowrap">右肺上叶占位“：切除肺组织两块，大着大小10*9*2cm，支气管长0.8cm,直径1cm</p>
+                    </div>
+                </li>
+            </ul>
+        </li>
+        <li class="box" id="picBox">
+            <div id="controller">
+            <header class="ui-header ui-header-stable"><h1>病理图像</h1><button class="ui-btn" onclick="jp()">截屏</button>
+            </header>
+            <div class="imglist"></div>
+            <canvas  id="getPic"></canvas>
+        </div>
+            <div id="bg-img"><div id="bg-swiper"><span id="bg-imgbox"></span></div></div>
+        </li>
+        <li class="box f-pb">
+            <header class="ui-header ui-header-stable"><h1>病理报告[ID：24232]</h1>
+            </header>
+            <div class="f-cw">
+            <table class="ui-table ui-border">
+                <tbody>
+                <tr><td class="head">姓名</td><td>李梅</td><td class="head">性别</td><td>女 <div class="ui-badge-muted">34岁</div></td></tr>
+                <tr><td class="head">科室</td><td>妇科</td><td class="head">送检医生</td><td>王家华</td></tr>
+                </tbody>
+            </table>
+            </div>
+            <div class="f-cw">
+                <table class="ui-table ui-border">
+                    <tbody>
+                    <tr><td class="head">初步诊断</td><td>乳腺癌</td></tr>
+                    <tr><td class="head">术中所见</td><td>暂无</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tbox">
+                <h3>肉眼所见</h3>
+                <p>送检灰黄褐色不规则组织1块，大小约5*3.5*2.5cm，切面灰白灰黄色，质稍韧，取3盒</p>
+            </div>
+            <div class="tbox">
+                <h3>光镜所见</h3>
+                <p>送检（右侧乳腺）组织内见癌组织呈条索状及小巢团状排列，浸润性生长。癌细胞包体大，胞浆红染；细胞核呈圆形或卵圆形，核大深染，异性性明显，核仁清晰，核分裂象易见。部分区域癌细胞位于导管。</p>
+            </div>
+            <div class="tbox">
+                <h3>病理诊断</h3>
+                <p>（右侧乳房）乳腺浸润性导管癌，II级。建议1号片行免疫组化检测ER、PR、Her-2、P53、Ki-67、CD31、D2-40</p>
+            </div>
+            <div class="tbox">
+                <h3>病理截图</h3>
+                <div class="imglist"></div>
+            </div>
+        </li>
+        <li class="box f-pb">
+            <header class="ui-header ui-header-stable"><h1>患者资料</h1><i class="ui-icon-search"></i>
+            </header>
+
+                <div class="tbox xxx">
+                    <h3>化验检查</h3>
+                    <table class="ui-table ui-border f-mt5">
+                        <tbody>
+                        <tr><td>血红蛋白:60g/L </td><td>血型:A</td><td>血小板:40×l09/L</td></tr>
+                        <tr><td>出血:5分</td><td>凝血:2分</td><td>白细胞:18×109/L</td></tr>
+                        <tr><td> 中性:84% </td><td>淋巴:14%</td><td>单核:1% </td></tr>
+                        <tr><td> 酸性:1% </td><td>碱性:0%</td><td> </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            <div class="tbox xxx">
+                <h3>影像检查列表</h3>
+            <ul class="ui-list ui-list-link">
+                <li>
+                    <div class="ui-list-icon">
+                        <span style="background-image:url(common/img/x1.png)"></span>
+                    </div>
+                    <div class="ui-list-info ui-border-t">
+                        <h4 class="ui-nowrap">检查类别：MR 检查部位：乳腺  </h4>
+                        <p class="ui-nowrap">1.考虑左乳恶性肿块可能大，不排除慢性炎症，建议切检2.考虑右乳良性钙化，必要时随访复查3.双侧乳腺增生</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="ui-list-icon">
+                        <span style="background-image:url(common/img/x2.png)"></span>
+                    </div>
+                    <div class="ui-list-info ui-border-t">
+                        <h4 class="ui-nowrap">检查类别：超声 检查部位：乳腺 </h4>
+                        <p class="ui-nowrap">5.7MM,边界清,欠规则,内部实质性回声不均匀,另于右侧乳腺外见两个液性暗区,大小约6.9MM×3.4MM,7.4MM×4.0MM,边界清,壁薄,内透声好. 双侧腋窝未探及低回声团.CDFI:实质性回声团彩色血流信号1级,RI0.80 左侧检查:BI-RADS 2级 右侧:BI-RADS 4级</p>
+                    </div>
+                </li>
+                </ul>
+                </div>
+            <div class="tbox xxx">
+                <h3>其他资料</h3>
+                <ul class="ui-list ui-list-text ui-list-active ui-list-cover ui-border-tb">
+                    <li class="ui-border-t">
+                        <p>病理检查申请单     南方医院  妇科 2013.5.16</p>
+                    </li>
+                    <li class="ui-border-t">
+                        <p>出院小结          南方医院  妇科 2014.6.6 </p>
+                    </li>
+                    <li class="ui-border-t">
+                        <p>入院记录          南方医院   妇科  2014.5.5 </p>
+                    </li>
+                </ul>
+
+            </div>
+
+        </li>
+    </ul>
+    <ul class="ui-tab-nav ui-border-t">
+        <li class="current">患者列表</li>
+        <li>图像</li>
+        <li>报告</li>
+        <li>患者资料</li>
+    </ul>
+</div>
+<script src="js/d3.min.js"></script>
+<script src="js/d3.geo.tile.min.js"></script>
+<script src="js/canvas2image.js"></script>
+<script src="js/zepto.min.js"></script>
+<script>
+
+
+var navl=$('.ui-tab-nav li');
+navl.click(function(){
+    var index=$(this).index();
+    $('.box').removeClass('current').eq(index).addClass('current');
+    navl.removeClass('current').eq(index).addClass('current');
+});
+$('.xx').click(function(){
+    navl.eq(1).click();
+});
+    $('#loading').hide();
+
+</script>
+<script>
+    //var picHost="http://cdnfile.erkezaixian.com/bpic/pic/";
+
+    var picHost="./pic/";
+    //截屏相关
+    var picList={};
+
+    function jp(callback){
+        var cvs=document.getElementById('getPic');
+        cvs.width = width*1.5;
+        cvs.height =height*1.5;
+        var ctx = cvs.getContext('2d');
+        ctx.fillStyle="#fff";
+        ctx.fillRect(0,0,width*1.5,height*1.5);
+        var num= 0,total= 0,i=0;
+        for (var k in picList)
+        {
+            var j=0;
+            for(var k2 in picList[k]){
+                var x=256*j;
+                var y=256*i;
+                var img=new Image();
+                img.src=picList[k][k2];
+                j++;total++;
+                img.setAttribute('x',x);
+                img.setAttribute('y',y);
+                img.crossOrigin = 'anonymous';
+                img.onload=function(){
+                    ctx.drawImage(this,this.getAttribute('x'),this.getAttribute('y'),this.width,this.height); num++;
+                    if(num==total){
+                        var imgdata=Canvas2Image.convertToImage(cvs,width*1.5,height*1.5,'jpeg');
+                        $('#bg-imgbox').html(imgdata);
+                        callback();
+                    }
+                };
+//                ctx.drawImage(img,x,y);
+//                var imgdata=Canvas2Image.convertToImage(cvs,width*1.5,height*1.5,'jpeg');
+//                $('#bg-img div').html(imgdata);
+//                callback();
+
+            }
+            i++;
+        }
+
+
+
+    }
+
+
+
+
+    d3.select('#reset').on('click',function(){
+        go(minScale,width/2,height/2)
+    });
+
+
+    var curX,curY,curS,tleS,tleTR,minLeft,minTop,
+            picWidth=309,picHeight=322, //默认比例下图片宽高用于消除溢出项目
+            width = window.innerWidth,
+            height = window.innerHeight,
+            prefix = prefixMatch(["webkit", "ms", "Moz", "O"]),
+            minScale=2 << 8,//最x小缩放比例 2<<7 =256
+            maxScale=2 << 15;//最大缩放比例
+
+
+    /**
+     * 重新设置图片显示位置
+     * @param scale 缩放比例
+     * @param nx  X轴位置
+     * @param ny  Y轴位置
+     */
+    function go(scale,nx,ny){
+        d3.transition().duration(250).tween("zoom", function() {
+            var si = d3.interpolate(curS, scale);
+            var xi = d3.interpolate(curX, nx);
+            var yi = d3.interpolate(curY, ny);
+            return function(t){
+                layer.call(zoom.translate([xi(t),yi(t)]).scale(si(t)).event);
+            }
+        });
+    }
+
+    var tile = d3.geo.tile().size([width, height]);//初始化显示内容数据
+    var zoom = d3.behavior.zoom()
+            .scale(2 << 10)
+            .scaleExtent([minScale,maxScale ])
+            .translate([width,height])
+            .on("zoomend",zoomstart).on("zoom", zoomed);
+
+    //    创建主容器
+    var map = d3.select("#picBox").style("height", height + "px").append("div").attr("id", "map")
+            .style("width", width + "px")
+            .style("height", height + "px")
+            .call(zoom);
+    //创建移动容器
+    var layer = map.append("div").attr("class", "layer").attr("id", "layer");
+
+    var startScale=512,cueK=1;
+    zoomed();//执行第一次事件
+    zoomstart();
+    function zoomed() {
+        //记录当前位置数据
+        curX=zoom.translate()[0];
+        curY=zoom.translate()[1];
+        curS=zoom.scale();
+        var tiles = tile.scale(zoom.scale()).translate(zoom.translate())();//计算视野中的图块
+        tleS=tiles.scale;tleTR=[tiles.translate[0],tiles.translate[1]];
+        draw(tiles);//绘制图片
+        copyPic(zoom.scale());
+    }
+
+    var drawTm;
+    function zoomstart(){
+        //if(!$('#bg-imgbox img').length){
+        clearTimeout(drawTm);
+        drawTm=setTimeout(function(){
+            startScale=zoom.scale();
+            jp(function(){
+                console.log('xxx')
+            });
+            lock=false;
+            copyPic();
+        },600);
+//            startScale=zoom.scale();
+//            jp(function(){
+//                console.log('xxx')
+//            });
+//            lock=false;
+//            copyPic();
+        //}
+
+    }
+
+    var lock=false;
+    function copyPic(curScale) {
+        var k = tleS / 256, r = tleS % 1 ? Number : Math.round;
+        var leftNum=r(tleTR[0] * tleS);
+        var topNum=r(tleTR[1] * tleS);
+        if(curScale){
+            // console.log(curScale,startScale,curScale/startScale,cueK)
+            k=cueK*(curScale/startScale);
+        }else{
+            cueK=k;
+        }
+        //var str='translate(' + leftNum+'px,'+topNum+ 'px) scale('+k+','+k+')';
+        var str= "matrix3d(" + [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0, leftNum,topNum, 0, 1 ] + ")";
+        d3.select("#bg-swiper").style(prefix+"transform",str);
+        if(!lock){$('#bg-imgbox').css("left",minLeft+'px').css("top",minTop+'px');lock=true;}
+    }
+    //function zoomend(){//改变事件结束
+    //    var isScale=!(curS==zoom.scale());
+    //    console.log(Math.ceil(zoom.scale()/512))
+    //
+    //    jp();
+    ////    if(isScale) {//放大缩小
+    ////        console.log('xx')
+    ////        var nscale=Math.ceil(zoom.scale()/512)*512;
+    ////        console.log(nscale-curS)
+    ////     //  if((nscale-curS)<512)go(Math.ceil(zoom.scale()/512)*512,curX,curY)
+    ////    }
+    //}
+
+
+    function draw(tiles){
+//        console.log(tiles)
+        //宁波江丰图片数据转换
+        var index=tiles[0][2];
+        var point=Math.abs(index-8);//倍率取反
+
+        //获取当前图片地址//用于截图
+        picList={};
+        var len=tiles.length;
+        minLeft='';minTop='';
+        for(var i=0;i<len;i++){
+            var d=tiles[i];
+            if(!picList[d[1]])picList[d[1]]=[];
+            picList[d[1]].push(picHost+point+"_"+d[1]+"_"+d[0]+".jpg");
+            var left=d[0] << 8;var top=d[1] << 8;
+            if(minLeft===''||left<minLeft)minLeft=left;
+            if(minTop===''||top<minTop)minTop=top;
+        }
+
+
+
+        var image = layer.style(prefix+"transform",transform(tiles.scale, tiles.translate))
+                .selectAll("#map .box-img")
+                .data(tiles, function(d) { return d;});
+
+
+        image.exit().remove();//移除消失项
+
+        image.enter().append("span").attr("class", "box-img")
+                .transition()
+                .duration(450)
+                .style("opacity",1)
+                .style("left", function(d) { return (d[0] << 8) + "px"; })
+                .style("top", function(d) { return (d[1] << 8) + "px"; })
+                .style("background-image", function(d) {//设置对应图片地址
+                    return "url("+picHost+point+"_"+d[1]+"_"+d[0]+".jpg)";
+                }).attr("id", function(d) {return point+"_"+d[1]+"_"+d[0];});//设置ID
+    }
+
+
+    function transform(scale, translate) {
+        var k = scale / 256, r = scale % 1 ? Number : Math.round;
+        //return 'translate(' + r(translate[0] * scale)+'px,'+r(translate[1] * scale) + 'px) scale('+k+','+k+')';
+        return "matrix3d(" + [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0, r(translate[0] * scale), r(translate[1] * scale), 0, 1 ] + ")";
+    }
+
+    function prefixMatch(p) {
+        var i = -1, n = p.length, s = document.body.style;
+        while (++i < n) if (p[i] + "Transform" in s) return "-" + p[i].toLowerCase() + "-";
+        return "";
+    }
+
+</script>
+</body>
+</html>

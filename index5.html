@@ -76,9 +76,10 @@
     }
     @-webkit-keyframes fadeIn {from {opacity: 0; } to {opacity: 1; } } @keyframes fadeIn {from {opacity: 0; } to {opacity: 1; } }
     .f-ant-fadeIn{
+        display: none;
         -webkit-animation-duration:0.5s; animation-duration: 0.5s; -webkit-animation-fill-mode: both; animation-fill-mode: both; -webkit-animation-name: fadeIn; animation-name: fadeIn;
     }
-.f-dn{display: none;}
+
     #controller{
         position: fixed;
         top: 0;
@@ -90,10 +91,10 @@
         display: none;
     }
 
+
 </style>
 </head>
 <body>
-
 <div id="controller">
     <button id="reset">重置</button>
     <button onclick="jp()">截屏</button>
@@ -114,7 +115,7 @@
     var imgCache=[];//已经加载的图片
 
 
-    //记录加载过的图块
+    //记录已经加载的图片
     function cacheImg(url){
         var index=imgCache.indexOf(url);
         if(index<0){
@@ -122,15 +123,9 @@
             img.src=url;
             img.onload=function(){
                 var imgBox= document.getElementById(url);
-                if(imgBox){
-                    imgBox.style.backgroundImage="url("+url+")";
-                    imgBox.style.display='block';
-                }
+                if(imgBox)imgBox.style.display='block';
                 imgCache.push(url)
             };
-            return false;
-        }else{
-            return true;
         }
     }
 
@@ -186,7 +181,7 @@
     });
 
 
-    var curX,curY,curS,isScale,tleS,tleTR,minLeft,minTop,
+    var curX,curY,curS,tleS,tleTR,minLeft,minTop,
         picWidth=309,picHeight=322, //默认比例下图片宽高用于消除溢出项目
         width = window.innerWidth,
         height = window.innerHeight,
@@ -234,7 +229,6 @@
         //记录当前位置数据
         curX=zoom.translate()[0];
         curY=zoom.translate()[1];
-        isScale=!(curS==zoom.scale());
         curS=zoom.scale();
         var tiles = tile.scale(zoom.scale()).translate(zoom.translate())();//计算视野中的图块
         tleS=tiles.scale;tleTR=[tiles.translate[0],tiles.translate[1]];
@@ -242,29 +236,39 @@
         copyPic(zoom.scale());
     }
 
-    var drawTm;
+    var drawTm,cacheTm;
     function zoomend(){
 
 
         if(!$('#bg-imgbox img').length){
-//        var scale=zoom.scale();
-//        clearTimeout(drawTm);
-//        drawTm=setTimeout(function(){
-//            copyPic(scale);
-//            jp(function(){
-//                startScale=scale;
-//            });
-//            lock=false;
-//
-//        },500);
-
+        var scale=zoom.scale();
+        clearTimeout(drawTm);
+        drawTm=setTimeout(function(){
+            copyPic(scale);
             jp(function(){
-                startScale=zoom.scale();
+                startScale=scale;
             });
             lock=false;
-            copyPic();
-       }
 
+        },500);
+//            startScale=zoom.scale();
+//            jp(function(){
+//                console.log('xxx')
+//            });
+//            lock=false;
+//            copyPic();
+       }
+//处理图片
+        clearTimeout(cacheTm);
+        cacheTm=setTimeout(function(){
+            console.log('x')
+            for (var k in picList)
+            {
+                for(var k2 in picList[k]) {
+                   cacheImg(picList[k][k2])
+                }
+            }
+        },4 00);
     }
 
 
@@ -319,41 +323,22 @@
         }
 
 
+
         var image = layer.style(prefix+"transform",transform(tiles.scale, tiles.translate))
                 .selectAll("#map .box-img")
                 .data(tiles, function(d) { return d;});
 
         image.exit().remove();//移除消失项
-        var imageSpan=image.enter().append("span");
-        imageSpan.attr("class", function(d) {
-            return imgCache.indexOf(getPicUrl(d,point))<0?"box-img f-dn f-ant-fadeIn":"box-img";
-        }).style("background-image", function(d) {//设置对应图片地址
-            return imgCache.indexOf(getPicUrl(d,point))<0?"":"url("+getPicUrl(d,point)+")";
-        }).style("left", function(d) { return (d[0] << 8) + "px"; })
-          .style("top", function(d) { return (d[1] << 8) + "px"; })
-          .attr("id", function(d) {return getPicUrl(d,point);});//设置ID
-        if(isScale){//缩放
-            showImg(300);
-        }else{
-            showImg(0);
-        }
 
-
+        image.enter().append("span").attr("class", function(d) {
+            return imgCache.indexOf(getPicUrl(d,point))<0?"box-img f-ant-fadeIn":"box-img";
+        })
+                .style("left", function(d) { return (d[0] << 8) + "px"; })
+                .style("top", function(d) { return (d[1] << 8) + "px"; })
+                .style("background-image", function(d) {//设置对应图片地址
+                    return "url("+getPicUrl(d,point)+")";
+                }).attr("id", function(d) {return getPicUrl(d,point)});//设置ID
     }
-
-//显示新增图片
-var cacheTm;
-function showImg(time){
-    if(time)clearTimeout(cacheTm);
-    cacheTm=setTimeout(function(){
-        for (var k in picList)
-        {
-            for(var k2 in picList[k]) {
-                cacheImg(picList[k][k2]);
-            }
-        }
-    },time);
-}
 
 //返回图片地址
     function getPicUrl(d,point){
