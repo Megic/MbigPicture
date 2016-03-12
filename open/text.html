@@ -19,22 +19,26 @@
         }
 
     </style>
+    <!--<script src="js/fabric.js"></script>-->
     <script src="js/openseadragon.min.js"></script>
+    <script src="js/openseadragonselection.js"></script>
+    <script src="js/canvas2image.js"></script>
 </head>
 
 <body>
+<div class="xx"><canvas ></canvas></div>
 <div id="example-custom-tilesource"
      class="openseadragon" >
 </div>
 <script>
-    OpenSeadragon({
+    var viewer = OpenSeadragon({
         id:                 "example-custom-tilesource",
         prefixUrl:          "./js/images/",
 
 //        immediateRender: true,
-        showNavigationControl: false,
-
-
+        showNavigationControl: true,
+//        degrees:45,//旋转角度
+        immediateRender:true,//先加载最高级
         zoomPerScroll:2,
         springStiffness:10,
         showNavigator:  true,
@@ -55,6 +59,46 @@
                 return "http://www.erkezaixian.com/d/file/bpic/pic/"+Math.abs(level-7)+"_"+y+"_"+x+".jpg";
             }
         }
+    });
+    viewer.selection({
+        element:                 null, // html element to use for overlay
+        showSelectionControl:    true, // show button to toggle selection mode
+        toggleButton:            null, // dom element to use as toggle button
+        showConfirmDenyButtons:  true,
+        styleConfirmDenyButtons: true,
+        returnPixelCoordinates:  true,
+        keyboardShortcut:        'c', // key to toggle selection mode
+        rect:                    null, // initial selection as an OpenSeadragon.SelectionRect object
+        startRotated:            false, // alternative method for drawing the selection; useful for rotated crops
+        startRotatedHeight:      0.1, // only used if startRotated=true; value is relative to image height
+        restrictToImage:         false, // true = do not allow any part of the selection to be outside the image
+        onSelection:             function(rect) {
+            //console.log(document.querySelector('.openseadragon-canvas canvas'))
+            var canvas=document.querySelector('.openseadragon-canvas canvas');
+         // var img=Canvas2Image.saveAsJPEG(canvas,100,100);
+            console.log(Canvas2Image.saveAsJPEG(canvas,100,100))
+        }, // callback
+        prefixUrl:               null // overwrites OpenSeadragon's option
+//        ,navImages:               { // overwrites OpenSeadragon's options
+//            selection: {
+//                REST:   'selection_rest.png',
+//                GROUP:  'selection_grouphover.png',
+//                HOVER:  'selection_hover.png',
+//                DOWN:   'selection_pressed.png'
+//            },
+//            selectionConfirm: {
+//                REST:   'selection_confirm_rest.png',
+//                GROUP:  'selection_confirm_grouphover.png',
+//                HOVER:  'selection_confirm_hover.png',
+//                DOWN:   'selection_confirm_pressed.png'
+//            },
+//            selectionCancel: {
+//                REST:   'selection_cancel_rest.png',
+//                GROUP:  'selection_cancel_grouphover.png',
+//                HOVER:  'selection_cancel_hover.png',
+//                DOWN:   'selection_cancel_pressed.png'
+//            }
+//        }
     });
 </script>
 </body>
